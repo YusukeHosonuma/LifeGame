@@ -28,15 +28,15 @@ public struct LifeGameBoard {
     // MARK: Initializer
     
     public init(size: Int, cells: [Cell]) {
-        self.board = Board(size: size, cells: cells)
-    }
-
-    public init(size: Int) {
-        self.init(size: size, cells: Array(repeating: .die, count: size * size))
+        board = Board(size: size, cells: cells)
     }
 
     public init(size: Int, cells: [Int]) {
-        self.init(size: size, cells: cells.map { $0 == 1 ? .alive : .die })
+        board = Board(size: size, cells: cells.map { $0 == 1 ? .alive : .die })
+    }
+
+    public init(size: Int) {
+        board = Self.emptyBoard(size: size)
     }
 
     // MARK: Public
@@ -51,8 +51,16 @@ public struct LifeGameBoard {
         board[index] = board[index] == .alive ? .die : .alive
     }
     
-    // MARK: Private
+    public mutating func clear() {
+        board = Self.emptyBoard(size: size)
+    }
     
+    // MARK: Private
+
+    private static func emptyBoard(size: Int) -> Board<Cell> {
+        Board(size: size, cells: Array(repeating: .die, count: size * size))
+    }
+
     private func nextCellState(_ index: Int) -> Cell {
         let aliveCount = board.surroundingCells(index: index).filter { $0 == .alive }.count
         return board[index].next(surroundingAliveCount: aliveCount)

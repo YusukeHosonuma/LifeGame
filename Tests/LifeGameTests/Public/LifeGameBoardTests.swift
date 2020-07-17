@@ -9,29 +9,8 @@ import XCTest
 @testable import LifeGame
 
 final class LifeGameBoardTests: XCTestCase {
-    func testExample() {
-        
-        var board = LifeGameBoard(size: 3, cells: [
-            0, 0, 0,
-            0, 1, 0,
-            0, 0, 0,
-        ])
-        
-        XCTAssertEqual(board.cells.map(\.rawValue), [
-            0, 0, 0,
-            0, 1, 0,
-            0, 0, 0,
-        ])
-        
-        board.next()
-        XCTAssertEqual(board.cells.map(\.rawValue), [
-            0, 0, 0,
-            0, 0, 0,
-            0, 0, 0,
-        ])
-    }
-    
-    func test() {
+
+    func testNext() {
         // life = 0
         assertBoard([
             0, 0, 0,
@@ -130,6 +109,19 @@ final class LifeGameBoardTests: XCTestCase {
             0, 0, 0,
             1, 0, 1,
         ])
+    }
+    
+    func testClear() {
+        var board = LifeGameBoard(size: 3, cells: [
+            0, 0, 0,
+            0, 1, 0,
+            0, 0, 0,
+        ])
+        
+        board.clear()
+        
+        XCTAssert(board.cells.count == 9)
+        XCTAssert(board.cells.allSatisfy { $0 == .die })
     }
     
     func assertBoard(_ before: [Int], _ after: [Int]) {
