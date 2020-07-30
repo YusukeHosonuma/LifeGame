@@ -25,6 +25,17 @@ struct Board<Cell> {
         }
     }
     
+    mutating func apply(_ board: Board) {
+        precondition(board.size <= size)
+        
+        for (y, row) in board.rows.enumerated() {
+            for (x, cell) in row.enumerated() {
+                let index = y * self.size + x
+                self.cells[index] = cell
+            }
+        }
+    }
+    
     func surroundingCells(index: Int) -> [Cell] {
         let isLeftEdge = index % size == 0
         let isRightEdge = (index + 1) % size == 0
@@ -45,5 +56,11 @@ struct Board<Cell> {
                 return nil
             }
         }
+    }
+    
+    // MARK: - Private
+    
+    private var rows: [[Cell]] {
+        cells.group(by: size)
     }
 }
