@@ -27,12 +27,14 @@ public struct LifeGameBoard {
     
     // MARK: Initializer
     
+    // TODO: `Board`を受け取るインターフェースに変更したい。
+    
     public init(size: Int, cells: [Cell]) {
         board = Board(size: size, cells: cells)
     }
 
     public init(size: Int, cells: [Int]) {
-        board = Board(size: size, cells: cells.map { $0 == 1 ? .alive : .die })
+        board = Board(size: size, cells: cells.map { $0 >= 1 ? .alive : .die })
     }
 
     public init(size: Int) {
@@ -53,6 +55,10 @@ public struct LifeGameBoard {
     
     public mutating func clear() {
         board = Self.emptyBoard(size: size)
+    }
+    
+    public mutating func apply(size: Int, cells: [Int]) {
+        board.apply(Board(size: size, cells: cells.map { $0 >= 1 ? .alive : .die }))
     }
     
     // MARK: Private

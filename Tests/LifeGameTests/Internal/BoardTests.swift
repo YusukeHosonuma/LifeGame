@@ -26,4 +26,45 @@ final class BoardTests: XCTestCase {
         XCTAssertEqual(Set(board.surroundingCells(index: 7)), [4, 5, 6, 7, 9])
         XCTAssertEqual(Set(board.surroundingCells(index: 8)), [5, 6, 8])
     }
+    
+    func testApply() {
+        XCTContext.runActivity(named: "Size is smaller than target") { _ in
+            var board = Board(size: 3, cells: [
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0,
+            ])
+            
+            board.apply(Board(size: 2, cells: [
+                1, 2,
+                3, 4
+            ]))
+            
+            XCTAssertEqual(board.cells, [
+                1, 2, 0,
+                3, 4, 0,
+                0, 0, 0,
+            ])
+        }
+        
+        XCTContext.runActivity(named: "Size is same to target") { _ in
+            var board = Board(size: 3, cells: [
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0,
+            ])
+            
+            board.apply(Board(size: 3, cells: [
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9,
+            ]))
+            
+            XCTAssertEqual(board.cells, [
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9,
+            ])
+        }
+    }
 }

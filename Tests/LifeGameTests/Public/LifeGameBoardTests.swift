@@ -123,6 +123,26 @@ final class LifeGameBoardTests: XCTestCase {
         XCTAssert(board.cells.count == 9)
         XCTAssert(board.cells.allSatisfy { $0 == .die })
     }
+
+    func testApply() {
+        var board = LifeGameBoard(size: 3, cells: [
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0,
+        ])
+        
+        board.apply(size: 2, cells: [
+            1, 0,
+            0, 1,
+        ])
+        
+        XCTAssert(board.cells.count == 9)
+        XCTAssertEqual(board.cells.map(\.rawValue), [
+            1, 0, 0,
+            0, 1, 0,
+            0, 0, 0,
+        ])
+    }
     
     func assertBoard(_ before: [Int], _ after: [Int]) {
         var board = LifeGameBoard(size: 3, cells: before)
