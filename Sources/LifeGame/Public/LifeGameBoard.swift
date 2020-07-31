@@ -25,6 +25,18 @@ public struct LifeGameBoard {
         board.cells.group(by: size)
     }
     
+    // MARK: Static
+    
+    public static func random(size: Int) -> LifeGameBoard {
+        var generator = SystemRandomNumberGenerator()
+        return LifeGameBoard.random(size: size, using: &generator)
+    }
+    
+    public static func random<T>(size: Int, using generator: inout T) -> LifeGameBoard where T: RandomNumberGenerator {
+        let cells: [Cell] = (0 ..< size * size).map { _ in Bool.random(using: &generator) ? .alive : . die }
+        return LifeGameBoard(size: size, cells: cells)
+    }
+    
     // MARK: Initializer
     
     // TODO: `Board`を受け取るインターフェースに変更したい。
@@ -40,7 +52,7 @@ public struct LifeGameBoard {
     public init(size: Int) {
         board = Self.emptyBoard(size: size)
     }
-
+    
     // MARK: Public
     
     public mutating func next() {
@@ -70,5 +82,15 @@ public struct LifeGameBoard {
     private func nextCellState(_ index: Int) -> Cell {
         let aliveCount = board.surroundingCells(index: index).filter { $0 == .alive }.count
         return board[index].next(surroundingAliveCount: aliveCount)
+    }
+}
+
+extension LifeGameBoard: CustomStringConvertible {
+    public var description: String {
+        board.cells
+            .map { $0 == .alive ? "■" : "□" }
+            .group(by: board.size)
+            .map { $0.joined(separator: " ") }
+            .joined(separator: "\n")
     }
 }
