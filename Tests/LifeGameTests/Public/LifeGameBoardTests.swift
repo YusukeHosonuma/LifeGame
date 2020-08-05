@@ -110,6 +110,21 @@ final class LifeGameBoardTests: XCTestCase {
             1, 0, 1,
         ])
     }
+
+    func testGeneration() {
+        var board = LifeGameBoard(size: 3)
+        XCTAssertEqual(board.generation, 0)
+        
+        board.next()
+        XCTAssertEqual(board.generation, 1)
+        
+        board.next()
+        XCTAssertEqual(board.generation, 2)
+        
+        board.clear()
+        XCTAssertEqual(board.generation, 0,
+                       "generation is reset when call clear()")
+    }
     
     func testClear() {
         var board = LifeGameBoard(size: 3, cells: [
