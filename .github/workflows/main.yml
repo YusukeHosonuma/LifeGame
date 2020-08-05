@@ -1,0 +1,21 @@
+name: Build and Test
+
+on: [push]
+
+jobs:
+  unit-test:
+    runs-on: macos-latest
+
+    steps:
+    - name: Use Xcode 12.0
+      run: |
+        sudo xcode-select -s /Applications/Xcode_12_beta.app/Contents/Developer
+        xcodebuild -version
+
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: swift build
+
+    - name: Test
+      run: swift test
