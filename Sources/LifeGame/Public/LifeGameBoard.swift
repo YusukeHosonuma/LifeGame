@@ -11,6 +11,8 @@
 public struct LifeGameBoard {
     private var board: Board<Cell>
     
+    private (set) var generation: Int = 0
+
     // MARK: Computed Properties
     
     public var size: Int {
@@ -58,6 +60,7 @@ public struct LifeGameBoard {
     public mutating func next() {
         let cells = board.cells.enumerated().map { index, _ in nextCellState(index) }
         self.board = Board(size: size, cells: cells)
+        generation += 1
     }
     
     public mutating func toggle(x: Int, y: Int) {
@@ -67,6 +70,7 @@ public struct LifeGameBoard {
     
     public mutating func clear() {
         board = Self.emptyBoard(size: size)
+        generation = 0
     }
     
     public mutating func apply(size: Int, cells: [Int]) {
