@@ -11,7 +11,7 @@
 public struct LifeGameBoard {
     private var board: Board<Cell>
     
-    private (set) var generation: Int = 0
+    public private(set) var generation: Int = 0
 
     // MARK: Computed Properties
     

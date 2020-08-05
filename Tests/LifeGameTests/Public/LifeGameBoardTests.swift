@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import LifeGame
+import LifeGame
 
 final class LifeGameBoardTests: XCTestCase {
 
@@ -164,20 +164,16 @@ final class LifeGameBoardTests: XCTestCase {
         board.next()
         
         let actual = board.cells.map(\.rawValue)
-        
-        func format(_ cells: [Int]) -> String {
-            cells.map { $0 == 1 ? "■" : "□" }.group(by: 3).map { $0.joined() }.joined(separator: "\n")
-        }
-        
+                
         XCTAssertEqual(actual, after, "\n\n" + """
         input:
-        \(format(before))
+        \(before)
 
         expedted:
-        \(format(after))
+        \(after)
 
         actual:
-        \(format(actual))
+        \(actual)
         """)
     }
 }
