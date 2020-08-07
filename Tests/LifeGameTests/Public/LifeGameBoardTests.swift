@@ -127,7 +127,7 @@ final class LifeGameBoardTests: XCTestCase {
     }
     
     func testClear() {
-        var board = LifeGameBoard(size: 3, cells: [
+        var board = makeBoard(size: 3, cells: [
             0, 0, 0,
             0, 1, 0,
             0, 0, 0,
@@ -140,7 +140,7 @@ final class LifeGameBoardTests: XCTestCase {
     }
 
     func testApply() {
-        var board = LifeGameBoard(size: 3, cells: [
+        var board = makeBoard(size: 3, cells: [
             0, 0, 0,
             0, 0, 0,
             0, 0, 0,
@@ -160,7 +160,7 @@ final class LifeGameBoardTests: XCTestCase {
     }
     
     func assertBoard(_ before: [Int], _ after: [Int]) {
-        var board = LifeGameBoard(size: 3, cells: before)
+        var board = makeBoard(size: 3, cells: before)
         board.next()
         
         let actual = board.cells.map(\.rawValue)
@@ -175,5 +175,9 @@ final class LifeGameBoardTests: XCTestCase {
         actual:
         \(actual)
         """)
+    }
+    
+    private func makeBoard(size: Int, cells: [Int]) -> LifeGameBoard {
+        LifeGameBoard(board: Board(size: size, cells: cells.map { $0 == 0 ? Cell.die : Cell.alive }))
     }
 }
