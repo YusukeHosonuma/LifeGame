@@ -9,7 +9,7 @@
 // https://simple.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
 public struct LifeGameBoard {
-    private var board: Board<Cell>
+    private(set) var board: Board<Cell>
     
     public private(set) var generation: Int = 0
 
