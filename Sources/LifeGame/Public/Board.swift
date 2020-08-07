@@ -38,7 +38,7 @@ public struct Board<Cell> {
         }
     }
     
-    public mutating func trim(by isBlank: (Cell) -> Bool) {
+    public func trimed(by isBlank: (Cell) -> Bool) -> Board<Cell> {
         
         func topBlank(_ cells: [Cell]) -> Int {
             cells
@@ -83,15 +83,15 @@ public struct Board<Cell> {
         let trimBottomLeft = min(bottomBlank(trimedCells), leftBlank(trimedCells))
         let trimTopRight = min(topBlank(trimedCells), rightBlank(trimedCells))
 
-        cells = Array(
-            trimedCells
-                .group(by: size)
-                .map { $0.dropFirst(trimBottomLeft).dropLast(trimTopRight) }
-                .dropFirst(trimTopRight)
-                .dropLast(trimBottomLeft)
-                .joined()
-        )
-        size = size - (trimTopLeft + trimBottomRight + trimBottomLeft + trimTopRight)
+        return Board(size: size - (trimTopLeft + trimBottomRight + trimBottomLeft + trimTopRight),
+                     cells: Array(
+                        trimedCells
+                            .group(by: size)
+                            .map { $0.dropFirst(trimBottomLeft).dropLast(trimTopRight) }
+                            .dropFirst(trimTopRight)
+                            .dropLast(trimBottomLeft)
+                            .joined()
+                    ))
     }
     
     func surroundingCells(index: Int) -> [Cell] {

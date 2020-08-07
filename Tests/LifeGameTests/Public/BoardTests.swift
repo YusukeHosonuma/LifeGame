@@ -70,15 +70,13 @@ final class BoardTests: XCTestCase {
     
     func testCrop() {
         do {
-            var board = Board(size: 5, cells: [
+            let board = Board(size: 5, cells: [
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0,
                 0, 0, 1, 0, 0,
                 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0,
-            ])
-
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 1)
             XCTAssertEqual(board.cells, [
@@ -87,13 +85,11 @@ final class BoardTests: XCTestCase {
         }
         
         do {
-            var board = Board(size: 3, cells: [
+            let board = Board(size: 3, cells: [
                 0, 0, 0,
                 0, 1, 0,
                 0, 0, 0,
-            ])
-
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 1)
             XCTAssertEqual(board.cells, [
@@ -103,11 +99,9 @@ final class BoardTests: XCTestCase {
         
         
         do {
-            var board = Board(size: 1, cells: [
+            let board = Board(size: 1, cells: [
                 1,
-            ])
-
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 1)
             XCTAssertEqual(board.cells, [
@@ -116,13 +110,11 @@ final class BoardTests: XCTestCase {
         }
 
         do {
-            var board = Board(size: 3, cells: [
+            let board = Board(size: 3, cells: [
                 1, 0, 0,
                 1, 0, 0,
                 0, 0, 0,
-            ])
-            
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 2)
             XCTAssertEqual(board.cells, [
@@ -133,13 +125,11 @@ final class BoardTests: XCTestCase {
         
         
         do {
-            var board = Board(size: 3, cells: [
+            let board = Board(size: 3, cells: [
                 0, 0, 0,
                 1, 0, 0,
                 1, 0, 0,
-            ])
-            
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 2)
             XCTAssertEqual(board.cells, [
@@ -149,13 +139,11 @@ final class BoardTests: XCTestCase {
         }
         
         do {
-            var board = Board(size: 3, cells: [
+            let board = Board(size: 3, cells: [
                 0, 0, 1,
                 0, 0, 1,
                 0, 0, 0,
-            ])
-            
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 2)
             XCTAssertEqual(board.cells, [
@@ -165,13 +153,11 @@ final class BoardTests: XCTestCase {
         }
         
         do {
-            var board = Board(size: 3, cells: [
+            let board = Board(size: 3, cells: [
                 0, 0, 0,
                 0, 0, 1,
                 0, 0, 1,
-            ])
-            
-            board.trim { $0 == 0 }
+            ]).trimed { $0 == 0 }
 
             XCTAssertEqual(board.size, 2)
             XCTAssertEqual(board.cells, [
