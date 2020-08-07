@@ -68,7 +68,38 @@ final class BoardTests: XCTestCase {
         }
     }
     
-    func testCrop() {
+    func testExtended() {
+        do {
+            let board = Board(size: 1, cells: [
+                1
+            ]).extended(by: { 0 })
+            
+            XCTAssertEqual(board.size, 3)
+            XCTAssertEqual(board.cells, [
+                0, 0, 0,
+                0, 1, 0,
+                0, 0, 0,
+            ])
+        }
+
+        do {
+            let board = Board(size: 2, cells: [
+                1, 1,
+                1, 1,
+            ]).extended(by: { 0 })
+            
+            XCTAssertEqual(board.size, 4)
+            XCTAssertEqual(board.cells, [
+                0, 0, 0, 0,
+                0, 1, 1, 0,
+                0, 1, 1, 0,
+                0, 0, 0, 0,
+            ])
+        }
+
+    }
+    
+    func testTrimed() {
         do {
             let board = Board(size: 5, cells: [
                 0, 0, 0, 0, 0,

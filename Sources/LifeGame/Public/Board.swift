@@ -37,6 +37,14 @@ public struct Board<Cell> {
             }
         }
     }
+
+    // TODO: とりあえず +1 のみサポート
+    public func extended(by cell: () -> Cell) -> Board<Cell> {
+        let head = [Array(repeating: cell(), count: size + 2)]
+        let last = [Array(repeating: cell(), count: size + 2)]
+        let body = cells.group(by: size).map { [cell()] + $0 + [cell()] }
+        return Board(size: size + 2, cells: Array((head + body + last).joined()))
+    }
     
     public func trimed(by isBlank: (Cell) -> Bool) -> Board<Cell> {
         
