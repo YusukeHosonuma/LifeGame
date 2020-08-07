@@ -8,10 +8,12 @@
 import Foundation
 
 public struct Board<Cell> {
-    private (set) var size: Int
-    private (set) var cells: [Cell]
+    public private(set) var size: Int
+    public private(set) var cells: [Cell]
 
-    init(size: Int, cells: [Cell]) {
+    public init(size: Int, cells: [Cell]) {
+        precondition(size * size == cells.count)
+        
         self.size = size
         self.cells = cells
     }
