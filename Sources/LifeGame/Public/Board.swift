@@ -7,16 +7,21 @@
 
 import Foundation
 
-extension Board: Equatable where Cell: Equatable {
-    public static func == (lhs: Board<Cell>, rhs: Board<Cell>) -> Bool {
-        lhs.size == rhs.size && lhs.cells == rhs.cells
-    }
-}
-
 public struct Board<Cell> {
     public private(set) var size: Int
     public private(set) var cells: [Cell]
-
+    
+    /// Create blank board.
+    /// - Parameters:
+    ///   - size: side-length
+    ///   - cell: blank cell (Important: `Cell` must by value-type)
+    public init(size: Int, cell: Cell) {
+        precondition(size > 0)
+        
+        self.size = size
+        cells = Array(repeating: cell, count: size * size)
+    }
+    
     public init(size: Int, cells: [Cell]) {
         precondition(size * size == cells.count)
         
@@ -44,6 +49,21 @@ public struct Board<Cell> {
         }
     }
 
+    public func setBoard(toCenter board: Board<Cell>) -> Board<Cell> {
+        precondition(board.size <= size)
+
+        let offset = (size - board.size) / 2
+        var newCells = cells
+        
+        for (y, row) in board.rows.enumerated() {
+            for (x, cell) in row.enumerated() {
+                let index = (offset + y) * self.size + (offset + x)
+                newCells[index] = cell
+            }
+        }
+        return Board(size: size, cells: newCells)
+    }
+    
     // TODO: とりあえず +1 のみサポート
     public func extended(by cell: Cell) -> Board<Cell> {
         let head = [Array(repeating: cell, count: size + 2)]
@@ -51,7 +71,7 @@ public struct Board<Cell> {
         let body = cells.group(by: size).map { [cell] + $0 + [cell] }
         return Board(size: size + 2, cells: Array((head + body + last).joined()))
     }
-    
+
     public func trimed(by isBlank: (Cell) -> Bool) -> Board<Cell> {
         // 1x1 のときは何もせずに自身を返す
         guard size > 1 else { return self }
@@ -138,9 +158,42 @@ public struct Board<Cell> {
         }
     }
     
+    // MARK: - Internal
+    
+    func topLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .prefix(while: { $0.allSatisfy(isBlank) })
+            .count
+    }
+    
+    func bottomLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .reversed()
+            .prefix(while: { $0.allSatisfy(isBlank) })
+            .count
+    }
+    
+    func leftLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .map { $0.prefix(while: isBlank).count }
+            .min() ?? 0
+    }
+    
+    func rightLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .map { $0.reversed().prefix(while: isBlank).count }
+            .min() ?? 0
+    }
+    
     // MARK: - Private
     
     private var rows: [[Cell]] {
         cells.group(by: size)
+    }
+}
+
+extension Board: Equatable where Cell: Equatable {
+    public static func == (lhs: Board<Cell>, rhs: Board<Cell>) -> Bool {
+        lhs.size == rhs.size && lhs.cells == rhs.cells
     }
 }

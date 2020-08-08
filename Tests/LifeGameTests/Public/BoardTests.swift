@@ -16,6 +16,15 @@ final class BoardTests: XCTestCase {
         7, 8, 9,
     ])
     
+    func testInit() {
+        let board = Board(size: 2, cell: 0)
+        XCTAssertEqual(board.size, 2)
+        XCTAssertEqual(board.cells, [
+            0, 0,
+            0, 0,
+        ])
+    }
+    
     func testSurroundingCells() {
         XCTAssertEqual(Set(board.surroundingCells(index: 0)), [2, 4, 5])
         XCTAssertEqual(Set(board.surroundingCells(index: 1)), [1, 3, 4, 5, 6])
@@ -67,6 +76,44 @@ final class BoardTests: XCTestCase {
                 7, 8, 9,
             ])
         }
+    }
+    
+    func testSetBoardToCenter() {
+        let isBlank: (Int) -> Bool = { $0 == 0 }
+        
+        property("対面する辺のブランクサイズの差は0または1になる") <- forAll { (baseSize: UInt, setSize: UInt) in
+            return (baseSize > 0 && setSize > 0 && baseSize >= setSize) ==> {
+                let board = Board(size: Int(baseSize), cell: 0)
+                    .setBoard(toCenter: Board(size: Int(setSize), cell: 1))
+                
+                let diffY = abs(board.topLineCount(by: isBlank) - board.bottomLineCount(by: isBlank))
+                let diffX = abs(board.leftLineCount(by: isBlank) - board.rightLineCount(by: isBlank))
+                
+                return
+                    (board.size == baseSize) <?> "盤面のサイズは変わらない"
+                    ^&&^
+                    ((diffX == 0 || diffX == 1) && (diffY == 0 || diffY == 1)) <?> "対面する辺のブランクサイズの差は0または1"
+            }
+        }
+        
+        XCTAssertEqual(
+            Board(size: 4, cell: 0).setBoard(toCenter: Board(size: 2, cell: 1)),
+            Board(size: 4, cells: [
+                0, 0, 0, 0,
+                0, 1, 1, 0,
+                0, 1, 1, 0,
+                0, 0, 0, 0,
+            ])
+        )
+        
+        XCTAssertEqual(
+            Board(size: 3, cell: 0).setBoard(toCenter: Board(size: 2, cell: 1)),
+            Board(size: 3, cells: [
+                1, 1, 0,
+                1, 1, 0,
+                0, 0, 0,
+            ])
+        )
     }
     
     func testExtended() {
