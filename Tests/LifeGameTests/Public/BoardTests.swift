@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import SwiftCheck
 @testable import LifeGame
 
 final class BoardTests: XCTestCase {
@@ -72,7 +73,7 @@ final class BoardTests: XCTestCase {
         do {
             let board = Board(size: 1, cells: [
                 1
-            ]).extended(by: { 0 })
+            ]).extended(by: 0)
             
             XCTAssertEqual(board.size, 3)
             XCTAssertEqual(board.cells, [
@@ -86,7 +87,7 @@ final class BoardTests: XCTestCase {
             let board = Board(size: 2, cells: [
                 1, 1,
                 1, 1,
-            ]).extended(by: { 0 })
+            ]).extended(by: 0)
             
             XCTAssertEqual(board.size, 4)
             XCTAssertEqual(board.cells, [
@@ -96,106 +97,43 @@ final class BoardTests: XCTestCase {
                 0, 0, 0, 0,
             ])
         }
-
     }
     
     func testTrimed() {
-        do {
-            let board = Board(size: 5, cells: [
-                0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0,
-                0, 0, 1, 0, 0,
-                0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 1)
-            XCTAssertEqual(board.cells, [
-                1
-            ])
+        let isBlank: (Int) -> Bool = { $0 == 0 }
+        let isNotBlank: (Int) -> Bool = { $0 == 1 }
+        
+        property("トリムを2回行っても結果は変わらない") <- forAll { (board: Board<Int>) in
+            board.trimed(by: isBlank) == board.trimed(by: isBlank).trimed(by: isBlank)
         }
         
-        do {
-            let board = Board(size: 3, cells: [
-                0, 0, 0,
+        property("トリムされてもブランクでないセルの数は変化しない") <- forAll { (board: Board<Int>) in
+            board.cells.filter(isNotBlank).count == board.trimed(by: isBlank).cells.filter(isNotBlank).count
+        }
+        
+        XCTAssertEqual(
+            Board(size: 1, cells: [1]).trimed(by: isBlank),
+            Board(size: 1, cells: [1]),
+            "Board is not changed when 1x1."
+        )
+        
+        XCTAssertEqual(
+            Board(size: 2, cells: [
+                0, 0,
+                0, 0,
+            ]).trimed(by: isBlank),
+            Board(size: 1, cells: [0]),
+            "Return board that size is 1x1 when all cells are blank."
+        )
+        
+        XCTAssertEqual(
+            Board(size: 3, cells: [
                 0, 1, 0,
                 0, 0, 0,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 1)
-            XCTAssertEqual(board.cells, [
-                1
-            ])
-        }
-        
-        
-        do {
-            let board = Board(size: 1, cells: [
-                1,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 1)
-            XCTAssertEqual(board.cells, [
-                1
-            ])
-        }
-
-        do {
-            let board = Board(size: 3, cells: [
-                1, 0, 0,
-                1, 0, 0,
                 0, 0, 0,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 2)
-            XCTAssertEqual(board.cells, [
-                1, 0,
-                1, 0,
-            ])
-        }
-        
-        
-        do {
-            let board = Board(size: 3, cells: [
-                0, 0, 0,
-                1, 0, 0,
-                1, 0, 0,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 2)
-            XCTAssertEqual(board.cells, [
-                1, 0,
-                1, 0,
-            ])
-        }
-        
-        do {
-            let board = Board(size: 3, cells: [
-                0, 0, 1,
-                0, 0, 1,
-                0, 0, 0,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 2)
-            XCTAssertEqual(board.cells, [
-                0, 1,
-                0, 1,
-            ])
-        }
-        
-        do {
-            let board = Board(size: 3, cells: [
-                0, 0, 0,
-                0, 0, 1,
-                0, 0, 1,
-            ]).trimed { $0 == 0 }
-
-            XCTAssertEqual(board.size, 2)
-            XCTAssertEqual(board.cells, [
-                0, 1,
-                0, 1,
-            ])
-        }
-
+            ]).trimed(by: isBlank),
+            Board(size: 1, cells: [1]),
+            "Blank cells are trimed."
+        )
     }
 }
