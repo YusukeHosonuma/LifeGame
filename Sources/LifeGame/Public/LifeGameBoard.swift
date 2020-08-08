@@ -9,7 +9,7 @@
 // https://simple.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
 public struct LifeGameBoard {
-    private var board: Board<Cell>
+    private(set) var board: Board<Cell>
     
     public private(set) var generation: Int = 0
 
@@ -36,23 +36,29 @@ public struct LifeGameBoard {
     
     public static func random<T>(size: Int, using generator: inout T) -> LifeGameBoard where T: RandomNumberGenerator {
         let cells: [Cell] = (0 ..< size * size).map { _ in Bool.random(using: &generator) ? .alive : . die }
-        return LifeGameBoard(size: size, cells: cells)
+        return LifeGameBoard(board: Board(size: size, cells: cells))
     }
     
     // MARK: Initializer
     
     // TODO: `Board`を受け取るインターフェースに変更したい。
-    
+
+    public init(size: Int) {
+        board = Self.emptyBoard(size: size)
+    }
+
+    public init(board: Board<Cell>) {
+        self.board = board
+    }
+
+    @available(*, deprecated, message: "Please use to `init(board: Board<Cell>)` instead.")
     public init(size: Int, cells: [Cell]) {
         board = Board(size: size, cells: cells)
     }
 
+    @available(*, deprecated, message: "Please use to `init(board: Board<Cell>)` instead.")
     public init(size: Int, cells: [Int]) {
         board = Board(size: size, cells: cells.map { $0 >= 1 ? .alive : .die })
-    }
-
-    public init(size: Int) {
-        board = Self.emptyBoard(size: size)
     }
     
     // MARK: Public
