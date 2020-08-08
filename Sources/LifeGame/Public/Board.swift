@@ -84,29 +84,20 @@ public struct Board<Cell> {
         let trimTopLeft = min(topLineCount(by: isBlank), leftLineCount(by: isBlank))
         let trimBottomRight = min(bottomLineCount(by: isBlank), rightLineCount(by: isBlank))
         
-        let tempBoard = Board(
-            size: size - (trimTopLeft + trimBottomRight),
-            cells: Array(
-                rows
-                    .map { $0.dropFirst(trimTopLeft).dropLast(trimBottomRight) }
-                    .dropFirst(trimTopLeft)
-                    .dropLast(trimBottomRight)
-                    .joined()
-            ))
+        let tempBoard = trimLines(top:    trimTopLeft,
+                                  bottom: trimBottomRight,
+                                  left:   trimTopLeft,
+                                  right:  trimBottomRight)
 
         let trimBottomLeft = min(tempBoard.bottomLineCount(by: isBlank), tempBoard.leftLineCount(by: isBlank))
         let trimTopRight = min(tempBoard.topLineCount(by: isBlank), tempBoard.rightLineCount(by: isBlank))
 
-        return Board(size: tempBoard.size - (trimBottomLeft + trimTopRight),
-                     cells: Array(
-                        tempBoard.rows
-                            .map { $0.dropFirst(trimBottomLeft).dropLast(trimTopRight) }
-                            .dropFirst(trimTopRight)
-                            .dropLast(trimBottomLeft)
-                            .joined()
-                    ))
+        return tempBoard.trimLines(top:    trimTopRight,
+                                   bottom: trimBottomLeft,
+                                   left:   trimBottomLeft,
+                                   right:  trimTopRight)
     }
-    
+
     func surroundingCells(index: Int) -> [Cell] {
         let isLeftEdge = index % size == 0
         let isRightEdge = (index + 1) % size == 0
@@ -160,6 +151,18 @@ public struct Board<Cell> {
     
     private var rows: [[Cell]] {
         cells.group(by: size)
+    }
+    
+    private func trimLines(top: Int, bottom: Int, left: Int, right: Int) -> Board<Cell> {
+        assert(top + bottom == left + right)
+        
+        let newSize = size - (top + bottom)
+        let newCells = rows
+            .map { $0.dropFirst(left).dropLast(right) }
+            .dropFirst(top)
+            .dropLast(bottom)
+            .joined()
+        return Board(size: newSize, cells: Array(newCells))
     }
 }
 
