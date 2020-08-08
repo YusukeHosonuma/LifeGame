@@ -7,16 +7,21 @@
 
 import Foundation
 
-extension Board: Equatable where Cell: Equatable {
-    public static func == (lhs: Board<Cell>, rhs: Board<Cell>) -> Bool {
-        lhs.size == rhs.size && lhs.cells == rhs.cells
-    }
-}
-
 public struct Board<Cell> {
     public private(set) var size: Int
     public private(set) var cells: [Cell]
-
+    
+    /// Create blank board.
+    /// - Parameters:
+    ///   - size: side-length
+    ///   - cell: blank cell (Important: `Cell` must by value-type)
+    public init(size: Int, cell: Cell) {
+        precondition(size > 0)
+        
+        self.size = size
+        cells = Array(repeating: cell, count: size * size)
+    }
+    
     public init(size: Int, cells: [Cell]) {
         precondition(size * size == cells.count)
         
@@ -44,6 +49,21 @@ public struct Board<Cell> {
         }
     }
 
+    public func setBoard(toCenter board: Board<Cell>) -> Board<Cell> {
+        precondition(board.size <= size)
+
+        let offset = (size - board.size) / 2
+        var newCells = cells
+        
+        for (y, row) in board.rows.enumerated() {
+            for (x, cell) in row.enumerated() {
+                let index = (offset + y) * self.size + (offset + x)
+                newCells[index] = cell
+            }
+        }
+        return Board(size: size, cells: newCells)
+    }
+    
     // TODO: とりあえず +1 のみサポート
     public func extended(by cell: Cell) -> Board<Cell> {
         let head = [Array(repeating: cell, count: size + 2)]
@@ -51,7 +71,7 @@ public struct Board<Cell> {
         let body = cells.group(by: size).map { [cell] + $0 + [cell] }
         return Board(size: size + 2, cells: Array((head + body + last).joined()))
     }
-    
+
     public func trimed(by isBlank: (Cell) -> Bool) -> Board<Cell> {
         // 1x1 のときは何もせずに自身を返す
         guard size > 1 else { return self }
@@ -61,61 +81,23 @@ public struct Board<Cell> {
             return Board(size: 1, cells: [cells.first!])
         }
         
-        func topBlank(_ cells: [Cell], _ size: Int) -> Int {
-            cells
-                .group(by: size)
-                .prefix(while: { $0.allSatisfy(isBlank) })
-                .count
-        }
+        let trimTopLeft = min(topLineCount(by: isBlank), leftLineCount(by: isBlank))
+        let trimBottomRight = min(bottomLineCount(by: isBlank), rightLineCount(by: isBlank))
         
-        func bottomBlank(_ cells: [Cell], _ size: Int) -> Int {
-            cells
-                .group(by: size)
-                .reversed()
-                .prefix(while: { $0.allSatisfy(isBlank) })
-                .count
-        }
-        
-        func leftBlank(_ cells: [Cell], _ size: Int) -> Int {
-            cells
-                .group(by: size)
-                .map { $0.prefix(while: isBlank).count }
-                .min() ?? 0
-        }
-        
-        func rightBlank(_ cells: [Cell], _ size: Int) -> Int {
-            cells
-                .group(by: size)
-                .map { $0.reversed().prefix(while: isBlank).count }
-                .min() ?? 0
-        }
-        
-        let trimTopLeft = min(topBlank(cells, size), leftBlank(cells, size))
-        let trimBottomRight = min(bottomBlank(cells, size), rightBlank(cells, size))
-        let trimedSize = size - (trimTopLeft + trimBottomRight)
-        
-        let trimedCells = Array(
-            cells.group(by: size)
-                .map { $0.dropFirst(trimTopLeft).dropLast(trimBottomRight) }
-                .dropFirst(trimTopLeft)
-                .dropLast(trimBottomRight)
-                .joined()
-        )
+        let tempBoard = trimLines(top:    trimTopLeft,
+                                  bottom: trimBottomRight,
+                                  left:   trimTopLeft,
+                                  right:  trimBottomRight)
 
-        let trimBottomLeft = min(bottomBlank(trimedCells, trimedSize), leftBlank(trimedCells, trimedSize))
-        let trimTopRight = min(topBlank(trimedCells, trimedSize), rightBlank(trimedCells, trimedSize))
+        let trimBottomLeft = min(tempBoard.bottomLineCount(by: isBlank), tempBoard.leftLineCount(by: isBlank))
+        let trimTopRight = min(tempBoard.topLineCount(by: isBlank), tempBoard.rightLineCount(by: isBlank))
 
-        return Board(size: trimedSize - (trimBottomLeft + trimTopRight),
-                     cells: Array(
-                        trimedCells
-                            .group(by: trimedSize)
-                            .map { $0.dropFirst(trimBottomLeft).dropLast(trimTopRight) }
-                            .dropFirst(trimTopRight)
-                            .dropLast(trimBottomLeft)
-                            .joined()
-                    ))
+        return tempBoard.trimLines(top:    trimTopRight,
+                                   bottom: trimBottomLeft,
+                                   left:   trimBottomLeft,
+                                   right:  trimTopRight)
     }
-    
+
     func surroundingCells(index: Int) -> [Cell] {
         let isLeftEdge = index % size == 0
         let isRightEdge = (index + 1) % size == 0
@@ -138,9 +120,54 @@ public struct Board<Cell> {
         }
     }
     
+    // MARK: - Internal
+    
+    func topLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .prefix(while: { $0.allSatisfy(isBlank) })
+            .count
+    }
+    
+    func bottomLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .reversed()
+            .prefix(while: { $0.allSatisfy(isBlank) })
+            .count
+    }
+    
+    func leftLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .map { $0.prefix(while: isBlank).count }
+            .min() ?? 0
+    }
+    
+    func rightLineCount(by isBlank: (Cell) -> Bool) -> Int {
+        rows
+            .map { $0.reversed().prefix(while: isBlank).count }
+            .min() ?? 0
+    }
+    
     // MARK: - Private
     
     private var rows: [[Cell]] {
         cells.group(by: size)
+    }
+    
+    private func trimLines(top: Int, bottom: Int, left: Int, right: Int) -> Board<Cell> {
+        assert(top + bottom == left + right)
+        
+        let newSize = size - (top + bottom)
+        let newCells = rows
+            .map { $0.dropFirst(left).dropLast(right) }
+            .dropFirst(top)
+            .dropLast(bottom)
+            .joined()
+        return Board(size: newSize, cells: Array(newCells))
+    }
+}
+
+extension Board: Equatable where Cell: Equatable {
+    public static func == (lhs: Board<Cell>, rhs: Board<Cell>) -> Bool {
+        lhs.size == rhs.size && lhs.cells == rhs.cells
     }
 }
