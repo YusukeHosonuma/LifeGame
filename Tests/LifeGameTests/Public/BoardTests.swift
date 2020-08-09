@@ -116,6 +116,58 @@ final class BoardTests: XCTestCase {
         )
     }
     
+    func testCentering() {
+        let isBlank: (Int) -> Bool = { $0 == 0 }
+
+        property("#") <- forAll { (board: Board) in
+            board.centering(by: isBlank).isCentered(by: isBlank)
+        }
+
+        property("#") <- forAll { (board: Board) in
+            board.centering(by: isBlank) == board.centering(by: isBlank).centering(by: isBlank)
+        }
+
+        do {
+            let expected = Board(size: 3, cells: [
+                0, 0, 0,
+                0, 1, 0,
+                0, 0, 0,
+            ])
+
+            XCTAssertEqual(
+                Board(size: 3, cells: [
+                    0, 1, 0,
+                    0, 0, 0,
+                    0, 0, 0,
+                ]).centering(by: isBlank), expected
+            )
+            
+            XCTAssertEqual(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    0, 0, 1,
+                    0, 0, 0,
+                ]).centering(by: isBlank), expected
+            )
+            
+            XCTAssertEqual(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    0, 0, 0,
+                    0, 1, 0,
+                ]).centering(by: isBlank), expected
+            )
+            
+            XCTAssertEqual(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 0,
+                ]).centering(by: isBlank), expected
+            )
+        }
+    }
+    
     func testExtended() {
         XCTAssertEqual(
             Board(size: 1, cell: 1).extended(by: 0),
@@ -173,5 +225,94 @@ final class BoardTests: XCTestCase {
             Board(size: 1, cells: [1]),
             "Blank cells are trimed."
         )
+    }
+    
+    // MARK: - Internal
+    
+    func testIsCentered() {
+        let isBlank: (Int) -> Bool = { $0 == 0 }
+
+        // Is centered.
+        do {
+            XCTAssertTrue(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    0, 0, 0,
+                    0, 0, 0,
+                ]).isCentered(by: isBlank),
+                "Return true when board is empty."
+            )
+
+            XCTAssertTrue(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    0, 1, 0,
+                    0, 0, 0,
+                ]).isCentered(by: isBlank)
+            )
+
+            XCTAssertTrue(
+                Board(size: 2, cells: [
+                    1, 0,
+                    0, 0,
+                ]).isCentered(by: isBlank)
+            )
+
+            XCTAssertTrue(
+                Board(size: 2, cells: [
+                    0, 1,
+                    0, 0,
+                ]).isCentered(by: isBlank)
+            )
+
+            XCTAssertTrue(
+                Board(size: 2, cells: [
+                    0, 0,
+                    0, 1,
+                ]).isCentered(by: isBlank)
+            )
+
+            XCTAssertTrue(
+                Board(size: 2, cells: [
+                    0, 0,
+                    1, 0,
+                ]).isCentered(by: isBlank)
+            )
+        }
+        
+        // Is not centered.
+        do {
+            XCTAssertFalse(
+                Board(size: 3, cells: [
+                    0, 1, 0,
+                    0, 0, 0,
+                    0, 0, 0,
+                ]).isCentered(by: isBlank)
+            )
+            
+            XCTAssertFalse(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    0, 0, 1,
+                    0, 0, 0,
+                ]).isCentered(by: isBlank)
+            )
+            
+            XCTAssertFalse(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    0, 0, 0,
+                    0, 1, 0,
+                ]).isCentered(by: isBlank)
+            )
+            
+            XCTAssertFalse(
+                Board(size: 3, cells: [
+                    0, 0, 0,
+                    1, 0, 0,
+                    0, 0, 0,
+                ]).isCentered(by: isBlank)
+            )
+        }
     }
 }

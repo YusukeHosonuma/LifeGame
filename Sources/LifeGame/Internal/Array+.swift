@@ -18,4 +18,18 @@ extension Array {
         }
         return result
     }
+    
+    func shifted(by: Int) -> [Element] {
+        guard count > 0 && abs(by) > 0 else { return self }
+        
+        let size = abs(by) % count
+        
+        if 0 < by {
+            let xs = self[(count - size)..<count]
+            return Array(xs + dropLast(size))
+        } else {
+            let xs = self[0..<size]
+            return Array(dropFirst(size) + xs)
+        }
+    }
 }
