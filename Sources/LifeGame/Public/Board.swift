@@ -64,6 +64,21 @@ public struct Board<Cell> {
         return Board(size: size, cells: newCells)
     }
     
+    public func centering(by isBlank: (Cell) -> Bool) -> Board<Cell> {
+        var diffX = rightLineCount(by: isBlank) - leftLineCount(by: isBlank)
+        var diffY = bottomLineCount(by: isBlank) - topLineCount(by: isBlank)
+        
+        // Not need shift when diff size lower than 2
+        diffX = abs(diffX) < 2 ? 0 : diffX
+        diffY = abs(diffY) < 2 ? 0 : diffY
+
+        let newCells = rows
+            .map { $0.shifted(by: diffX / 2) }
+            .shifted(by: diffY / 2)
+            .joined()
+        return Board(size: size, cells: Array(newCells))
+    }
+    
     // TODO: とりあえず +1 のみサポート
     public func extended(by cell: Cell) -> Board<Cell> {
         let head = [Array(repeating: cell, count: size + 2)]
@@ -121,6 +136,12 @@ public struct Board<Cell> {
     }
     
     // MARK: - Internal
+    
+    func isCentered(by isBlank: (Cell) -> Bool) -> Bool {
+        let diffX = abs(leftLineCount(by: isBlank) - rightLineCount(by: isBlank))
+        let diffY = abs(topLineCount(by: isBlank) - bottomLineCount(by: isBlank))
+        return (0...1 ~= diffX) && (0...1 ~= diffY)
+    }
     
     func topLineCount(by isBlank: (Cell) -> Bool) -> Int {
         rows
