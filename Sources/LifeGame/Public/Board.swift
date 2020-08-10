@@ -187,8 +187,14 @@ public struct Board<Cell> {
     }
 }
 
+// MARK: - Equatable
+
 extension Board: Equatable where Cell: Equatable {
     public static func == (lhs: Board<Cell>, rhs: Board<Cell>) -> Bool {
         lhs.size == rhs.size && lhs.cells == rhs.cells
     }
 }
+
+// MARK: - Codable
+
+extension Board: Codable where Cell: Codable {}
