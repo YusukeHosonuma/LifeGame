@@ -28,3 +28,7 @@ public enum Cell: Int {
         }
     }
 }
+
+// MARK: - Codable
+
+extension Cell: Codable {}
