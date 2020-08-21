@@ -168,9 +168,17 @@ final class BoardTests: XCTestCase {
         }
     }
     
+    func testPropertyExtendedAndContract() {
+        property("同じサイズで拡張・縮小したものは元のボードと一致する") <- forAll { (board: Board<Int>, count: UInt) in
+            board == board.extended(by: 0, count: Int(count)).contracted(count: Int(count))
+        }
+    }
+    
     func testExtended() {
+        
+        // count = 1
         XCTAssertEqual(
-            Board(size: 1, cell: 1).extended(by: 0),
+            Board(size: 1, cell: 1).extended(by: 0, count: 1),
             Board(size: 3, cells: [
                 0, 0, 0,
                 0, 1, 0,
@@ -178,14 +186,70 @@ final class BoardTests: XCTestCase {
             ])
         )
         
+        // count = 2
         XCTAssertEqual(
-            Board(size: 2, cell: 1).extended(by: 0),
+            Board(size: 1, cell: 1).extended(by: 0, count: 2),
+            Board(size: 5, cells: [
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+            ])
+        )
+        
+        XCTAssertEqual(
+            Board(size: 2, cell: 1).extended(by: 0, count: 1),
             Board(size: 4, cells: [
                 0, 0, 0, 0,
                 0, 1, 1, 0,
                 0, 1, 1, 0,
                 0, 0, 0, 0,
             ])
+        )
+    }
+    
+    func testContract() {
+        
+        // Success case
+        
+        XCTAssertEqual(
+            Board(size: 3, cells: [
+                0, 0, 0,
+                0, 1, 0,
+                0, 0, 0,
+            ]).contracted(count: 1),
+            Board(size: 1, cell: 1)
+        )
+
+        XCTAssertEqual(
+            Board(size: 5, cells: [
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+            ]).contracted(count: 2),
+            Board(size: 1, cell: 1)
+        )
+        
+        XCTAssertEqual(
+            Board(size: 4, cells: [
+                0, 0, 0, 0,
+                0, 1, 1, 0,
+                0, 1, 1, 0,
+                0, 0, 0, 0,
+            ]).contracted(count: 1),
+            Board(size: 2, cell: 1)
+        )
+        
+        // Failure case
+        
+        XCTAssertNil(
+            Board(size: 2, cells: [
+                0, 0,
+                0, 0,
+            ]).contracted(count: 1)
         )
     }
     

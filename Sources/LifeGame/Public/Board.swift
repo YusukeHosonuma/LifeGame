@@ -79,12 +79,26 @@ public struct Board<Cell> {
         return Board(size: size, cells: Array(newCells))
     }
     
-    // TODO: とりあえず +1 のみサポート
-    public func extended(by cell: Cell) -> Board<Cell> {
-        let head = [Array(repeating: cell, count: size + 2)]
-        let last = [Array(repeating: cell, count: size + 2)]
-        let body = cells.group(by: size).map { [cell] + $0 + [cell] }
-        return Board(size: size + 2, cells: Array((head + body + last).joined()))
+    // TODO: `size`と`count`といかにも間違いやすい感じがするがそのうち・・・
+    
+    public func extended(by cell: Cell, count: Int) -> Board<Cell> {
+        let newSize = size + count * 2
+        
+        let newLine = Array(repeating: cell, count: newSize)
+        let newLines = Array(repeating: newLine, count: count)
+        
+        let body: [[Cell]] = cells.group(by: size).map {
+            let newEdge = Array(repeating: cell, count: count)
+            return newEdge + $0 + newEdge
+        }
+        
+        let cells = Array((newLines + body + newLines).joined())
+        return Board(size: newSize, cells: cells)
+    }
+    
+    public func contracted(count: Int) -> Board<Cell>? {
+        guard size - count * 2 >= 1 else { return nil } // 1x1 より小さくはできない
+        return trimLines(top: count, bottom: count, left: count, right: count)
     }
 
     public func trimed(by isBlank: (Cell) -> Bool) -> Board<Cell> {
