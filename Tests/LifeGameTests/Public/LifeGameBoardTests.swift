@@ -159,7 +159,64 @@ final class LifeGameBoardTests: XCTestCase {
         ])
     }
     
-    func assertBoard(_ before: [Int], _ after: [Int]) {
+    func testChangeBoardSize() {
+        // 3 -> 1
+        do {
+            var board = makeBoard(size: 3, cells: [
+                0, 0, 0,
+                0, 1, 0,
+                0, 0, 0,
+            ])
+            board.changeBoardSize(to: 1)
+            
+            XCTAssert(board.cells.count == 1)
+            XCTAssertEqual(board.cells.map(\.rawValue), [
+                1,
+            ])
+        }
+
+        // 3 -> 5
+        do {
+            var board = makeBoard(size: 3, cells: [
+                0, 0, 0,
+                0, 1, 0,
+                0, 0, 0,
+            ])
+            board.changeBoardSize(to: 5)
+
+            XCTAssert(board.cells.count == 25)
+            XCTAssertEqual(board.cells.map(\.rawValue), [
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+            ])
+        }
+        
+        // 2 -> 6
+        do {
+            var board = makeBoard(size: 2, cells: [
+                1, 1,
+                1, 1,
+            ])
+            board.changeBoardSize(to: 6)
+
+            XCTAssert(board.cells.count == 36)
+            XCTAssertEqual(board.cells.map(\.rawValue), [
+                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0,
+                0, 0, 1, 1, 0, 0,
+                0, 0, 1, 1, 0, 0,
+                0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0,
+            ])
+        }
+    }
+    
+    // MARK: Private
+    
+    private func assertBoard(_ before: [Int], _ after: [Int]) {
         var board = makeBoard(size: 3, cells: before)
         board.next()
         

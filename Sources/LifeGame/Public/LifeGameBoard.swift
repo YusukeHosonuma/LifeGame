@@ -82,6 +82,16 @@ public struct LifeGameBoard {
         board.apply(Board(size: size, cells: cells.map { $0 >= 1 ? .alive : .die }))
     }
     
+    public mutating func changeBoardSize(to newSize: Int) {
+        precondition((size - newSize) % 2 == 0, "diff size must be even")
+        if newSize > size {
+            board = board.extended(by: .die, count: (newSize - size) / 2)
+        } else {
+            board = board.contracted(count: (size - newSize) / 2)!
+        }
+        // TODO: `generation` はクリアすべきなのか・・・触っていて不自然だったら直すかも。
+    }
+    
     // MARK: Private
 
     private static func emptyBoard(size: Int) -> Board<Cell> {
