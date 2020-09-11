@@ -25,6 +25,71 @@ final class BoardTests: XCTestCase {
         ])
     }
     
+    func testInitWidthHeight() {
+        // 横長
+        XCTAssertEqual(
+            Board(width: 3, height: 2, cells: [
+                1, 2, 3,
+                4, 5, 6,
+            ], blank: 0),
+            Board(size: 3, cells: [
+                1, 2, 3,
+                4, 5, 6,
+                0, 0, 0,
+            ])
+        )
+        XCTAssertEqual(
+            Board(width: 4, height: 2, cells: [
+                1, 2, 3, 4,
+                5, 6, 7, 8,
+            ], blank: 0),
+            Board(size: 4, cells: [
+                0, 0, 0, 0,
+                1, 2, 3, 4,
+                5, 6, 7, 8,
+                0, 0, 0, 0,
+            ])
+        )
+        
+        // 縦長
+        XCTAssertEqual(
+            Board(width: 2, height: 3, cells: [
+                1, 2,
+                3, 4,
+                5, 6,
+            ], blank: 0),
+            Board(size: 3, cells: [
+                1, 2, 0,
+                3, 4, 0,
+                5, 6, 0,
+            ])
+        )
+        XCTAssertEqual(
+            Board(width: 2, height: 4, cells: [
+                1, 2,
+                3, 4,
+                5, 6,
+                7, 8,
+            ], blank: 0),
+            Board(size: 4, cells: [
+                0, 1, 2, 0,
+                0, 3, 4, 0,
+                0, 5, 6, 0,
+                0, 7, 8, 0,
+            ])
+        )
+
+        property("Generated board's size is max of width or height.") <- forAll { (width: UInt, height: UInt) in
+            return (width > 0 && height > 0) ==> {
+                let w = Int(width)
+                let h = Int(height)
+                let cells = Array(repeating: 1, count: w * h)
+                let board = Board(width: w, height: h, cells: cells, blank: 0)
+                return board.size == max(w, h)
+            }
+        }
+    }
+    
     func testSurroundingCells() {
         XCTAssertEqual(Set(board.surroundingCells(index: 0)), [2, 4, 5])
         XCTAssertEqual(Set(board.surroundingCells(index: 1)), [1, 3, 4, 5, 6])

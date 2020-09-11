@@ -29,6 +29,37 @@ public struct Board<Cell> {
         self.cells = cells
     }
     
+    // TODO: 将来的には Board 自体を正方形に限定しないほうがいい、とは思ってる。
+    
+    public init(width: Int, height: Int, cells: [Cell], blank: @autoclosure () -> Cell) {
+        precondition(width > 0 && height > 0)
+        precondition(width * height == cells.count)
+
+        self.size = max(width, height)
+        
+        let rows = cells.group(by: width)
+        let diff = abs(width - height)
+        
+        let headCount = (diff / 2)
+        let tailCount = diff - (diff / 2)
+
+        if width > height {
+            // Horizontally long
+            let blankRow = Array(repeating: blank(), count: width)
+            let topLines = Array(repeating: blankRow, count: headCount)
+            let bottomLines = Array(repeating: blankRow, count: tailCount)
+            self.cells = Array((topLines + rows + bottomLines).joined())
+        } else {
+            // Vertically long
+            let newRows: [[Cell]] = rows.map { row in
+                let left = Array(repeating: blank(), count: headCount)
+                let right = Array(repeating: blank(), count: tailCount)
+                return left + row + right
+            }
+            self.cells = Array(newRows.joined())
+        }
+    }
+    
     subscript(_ index: Int) -> Cell {
         get {
             cells[index]
